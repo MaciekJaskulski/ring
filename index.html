@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home Configurator – Ring (UX prototype)</title>
+<meta name="description" content="Clickable prototype of the Ring home configurator with the UX fixes applied: stage stepper, sticky CTAs, mobile Zoe, upsell flow, carousel.">
+<style>
+:root{
+  --blue:#0b6fb3; --blue-d:#085a93; --blue-soft:#eaf4fb;
+  --orange:#f1670d; --cta:#c2500a; --cta-h:#a84308;
+  --ink:#1f2933; --muted:#52606d; --line:#d5dbe1; --bg:#f4f5f6; --card:#fff;
+  --field:#4b5563; --ok:#1d7a46;
+  --r:14px; --bar-h:68px;
+  --font:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font:16px/1.5 var(--font);color:var(--ink);background:var(--bg)}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid #1a73e8;outline-offset:2px;border-radius:6px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:8px;background:#fff;padding:8px 12px;z-index:200}
+.skip:focus{left:8px}
+
+/* ---------- site chrome (simplified Ring header) ---------- */
+.promo{background:#2a6fbd;color:#fff;font-size:13px;text-align:center;padding:9px 16px}
+.promo a{color:#fff}
+header.site{background:#fff;border-bottom:1px solid var(--line)}
+.site-in{max-width:1240px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;gap:28px}
+.logo{font-weight:800;font-size:30px;letter-spacing:-1px;color:var(--blue);text-decoration:none}
+.nav{display:flex;gap:22px;flex:1;font-size:15px}
+.nav a{color:var(--ink);text-decoration:none}
+.nav a.offers{color:var(--blue)}
+.cart{position:relative;background:none;border:0;min-width:44px;min-height:44px;display:grid;place-items:center}
+.cart b{position:absolute;top:2px;right:0;background:var(--cta);color:#fff;border-radius:10px;font-size:12px;min-width:20px;height:20px;line-height:20px;text-align:center;padding:0 5px}
+.cart b[hidden]{display:none}
+footer.site{background:#e8eaec;margin-top:48px;padding:28px 20px;font-size:14px;color:var(--muted)}
+footer.site div{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 28px}
+.proto-link{margin-left:12px;background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;padding:6px}
+
+/* ---------- layout ---------- */
+#app{max-width:1100px;margin:0 auto;padding:0 20px;min-height:60vh}
+.top{display:flex;align-items:center;justify-content:space-between;padding-top:14px}
+.tbtn{background:none;border:0;min-height:44px;padding:0 6px;color:var(--blue);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.tbtn:hover{text-decoration:underline}
+.tbtn[disabled]{opacity:.35;cursor:default;text-decoration:none}
+
+/* ---------- stepper ---------- */
+.stepper{margin:2px 0 6px}
+.stepper ol{list-style:none;margin:0;padding:0;display:flex;gap:8px}
+.stepper li{flex:1;min-width:0}
+.seg{display:block;height:6px;border-radius:3px;background:#d5dbe1;overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:var(--orange);border-radius:3px;transition:width .45s ease}
+.stepper .lbl{display:block;margin-top:7px;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stepper li.cur .lbl{color:var(--ink);font-weight:700}
+.stepper li.done .lbl{color:var(--ok)}
+.stepper li.done .lbl:before{content:"✓ "}
+
+/* ---------- question screen ---------- */
+.q{animation:in .25s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.q h1{font-size:clamp(24px,3.4vw,36px);line-height:1.2;text-align:center;margin:26px 0 6px;font-weight:600}
+.q .sub{text-align:center;color:var(--muted);margin:0 0 22px}
+.grid{display:grid;gap:16px;margin:24px auto 0;justify-content:center;grid-template-columns:repeat(auto-fit,minmax(190px,220px))}
+.grid.n2{grid-template-columns:repeat(2,minmax(190px,240px))}
+.grid.n3{grid-template-columns:repeat(3,minmax(190px,240px))}
+.opt{position:relative;background:var(--card);border:2px solid transparent;border-radius:var(--r);box-shadow:0 1px 4px rgba(0,0,0,.14);padding:0;text-align:center;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s,border-color .15s}
+.opt:hover{box-shadow:0 4px 14px rgba(0,0,0,.18);transform:translateY(-2px)}
+.opt img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#f7f8f9}
+.opt .t{padding:14px 12px 16px;font-weight:700;font-size:17px;line-height:1.25}
+.opt[aria-checked=true]{border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,111,179,.18)}
+.opt[aria-checked=true]:after{content:"✓";position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700}
+.opt .info{position:absolute;top:8px;left:8px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--field);background:#fff;font-weight:700;font-size:15px;display:grid;place-items:center;z-index:2}
+.optwrap{position:relative;display:flex}
+.optwrap .opt{flex:1}
+.optwrap .info{position:absolute;top:8px;left:8px;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--field);background:#fff;font-weight:700;font-size:15px;display:grid;place-items:center;z-index:2;padding:0}
+.optwrap .tip{display:none;position:absolute;left:8px;right:8px;top:48px;background:var(--ink);color:#fff;border-radius:10px;padding:10px 12px;font-size:14px;z-index:3;text-align:left}
+.optwrap .tip.on{display:block}
+.qactions{display:flex;justify-content:center;margin:28px 0 10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 26px;border-radius:30px;border:2px solid var(--cta);background:var(--cta);color:#fff;font-weight:700;font-size:16px;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--cta-h);border-color:var(--cta-h)}
+.btn.ghost{background:#fff;color:var(--cta)}
+.btn.ghost:hover{background:#fff4ec}
+.btn.blue{background:var(--blue);border-color:var(--blue)}
+.btn.blue:hover{background:var(--blue-d);border-color:var(--blue-d)}
+.btn.done{background:var(--ok);border-color:var(--ok)}
+.btn.sm{min-height:44px;padding:0 18px;font-size:15px}
+
+/* ---------- result ---------- */
+.bar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(0,0,0,.08);margin:0 -20px}
+.bar-in{max-width:1100px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;min-height:var(--bar-h)}
+.bar-info{flex:1;min-width:0}
+.bar-info small{display:block;color:var(--muted);font-size:13px;line-height:1.2}
+.bar-info strong{display:block;font-size:17px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-price{font-weight:800;font-size:20px;white-space:nowrap}.bar-price small{display:none;font-size:12px;font-weight:400;color:var(--muted);line-height:1.2}
+.bar-act{display:flex;align-items:center;gap:10px}
+.zoe-bar{display:none}
+.rhead{padding:22px 0 6px}
+.rhead h1{margin:0 0 8px;font-size:clamp(26px,3.6vw,38px);font-weight:600;line-height:1.15}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chips span.l{font-size:14px;color:var(--muted);margin-right:2px}
+.achip{background:#fff;border:1.5px solid var(--line);border-radius:20px;min-height:36px;padding:0 14px;font-size:14px;color:var(--ink)}
+.achip:hover{border-color:var(--blue);color:var(--blue)}
+.achip:after{content:" ✎";font-size:12px;color:var(--muted)}
+
+.pcard{background:var(--card);border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.1);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);overflow:hidden;margin-top:18px}
+.pcard .pimg{background:#fff;display:grid;place-items:center;padding:24px}
+.pcard .pimg img{width:min(100%,420px);aspect-ratio:1/1;object-fit:contain}
+.pbody{padding:28px 28px 28px 8px}
+.badge{display:inline-block;background:var(--blue-soft);color:var(--blue-d);font-weight:700;font-size:13px;border-radius:14px;padding:3px 12px;margin:0 0 10px}
+.pbody h2{margin:0;font-size:26px;line-height:1.2;font-weight:600}
+.price{font-size:26px;font-weight:800;margin:8px 0 14px;color:var(--ink)}
+.price s{font-size:16px;color:var(--muted);font-weight:400;margin-left:8px}
+.price em{font-style:normal;font-size:13px;color:var(--ok);font-weight:700;margin-left:8px}
+.why{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:7px}
+.why li{padding-left:28px;position:relative}
+.why li:before{content:"✓";position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:#e3f3ea;color:var(--ok);font-size:13px;font-weight:700;display:grid;place-items:center;top:2px}
+details.specs{margin:0 0 18px;font-size:15px}
+details.specs summary{cursor:pointer;color:var(--blue);font-weight:600;min-height:32px}
+details.specs dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:8px 0 0}
+details.specs dt{color:var(--muted)} details.specs dd{margin:0}
+.pact{display:flex;gap:12px;flex-wrap:wrap}
+
+.upsell{display:flex;align-items:center;gap:18px;background:#fff;border:2px dashed #9fc4e0;border-radius:18px;padding:18px 22px;margin-top:20px}
+.upsell img{width:64px;height:64px;border-radius:12px;object-fit:cover;flex:none}
+.upsell h3{margin:0 0 2px;font-size:19px}
+.upsell p{margin:0;color:var(--muted);font-size:15px}
+.upsell .grow{flex:1}
+
+.sec{margin-top:34px}
+.sec h2{font-size:22px;margin:0 0 4px;font-weight:600}
+.sec .hint{margin:0 0 12px;color:var(--muted);font-size:15px}
+.car-wrap{position:relative}
+.car{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 16px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.ccard{flex:0 0 280px;scroll-snap-align:start;background:#fff;border-radius:16px;box-shadow:0 1px 8px rgba(0,0,0,.12);padding:16px;display:flex;flex-direction:column}
+.ccard img{width:100%;aspect-ratio:4/3;object-fit:contain;margin-bottom:8px}
+.ccard h3{font-size:16px;margin:0 0 4px;line-height:1.3;font-weight:700;min-height:42px}
+.ccard .price{font-size:20px;margin:2px 0 8px}
+.ccard ul{margin:0 0 12px;padding-left:18px;font-size:14px;color:var(--muted);flex:1}
+.ccard .row{display:flex;gap:8px}
+.ccard .row .btn{flex:1;padding:0 10px}
+.arrow{position:absolute;top:38%;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--field);background:#fff;font-size:20px;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.arrow.l{left:-18px}.arrow.r{right:-18px}
+.disc{font-size:13px;color:var(--muted);margin:26px 0 0;text-align:center}
+
+.canvas{position:relative;margin-top:18px;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,#1c2b3a,#3b4f63);height:clamp(280px,36vw,430px)}
+.canvas>img{width:100%;height:100%;object-fit:cover}
+.hot{position:absolute;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.92);border:4px solid #fff;box-shadow:0 0 0 0 rgba(255,255,255,.6);animation:pulse 2.4s infinite;padding:6px}
+.hot img{width:100%;height:100%;object-fit:contain}
+.hot span{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:6px;background:rgba(0,0,0,.72);color:#fff;font-size:12px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+@keyframes pulse{70%{box-shadow:0 0 0 14px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+.setgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.setgrid .pcard{grid-template-columns:1fr;margin-top:0}
+.setgrid .pcard .pimg{padding:16px 16px 0}
+.setgrid .pcard .pimg img{width:auto;height:240px;max-width:100%}
+.setgrid .pbody{padding:16px 22px 24px}
+.setgrid .pbody h2{font-size:21px}
+.devbtns{display:none}
+.devbtn{display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 14px;text-align:left;min-height:72px;margin-top:10px}
+.devbtn img{width:56px;height:56px;object-fit:contain;flex:none}
+.devbtn .n{flex:1;min-width:0}
+.devbtn small{display:block;color:var(--muted);font-size:13px}
+.devbtn strong{display:block;font-size:16px;line-height:1.25}
+.devbtn .p{font-weight:800}
+.devbtn .go{font-size:22px;color:var(--blue)}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:90;display:none}
+.scrim.on{display:block}
+.drawer{position:fixed;z-index:95;background:#fff;display:none;flex-direction:column;box-shadow:-6px 0 30px rgba(0,0,0,.25)}
+.drawer.on{display:flex}
+.drawer .dh{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--line)}
+.drawer .dh strong{font-size:18px}
+.drawer .db{overflow:auto;padding:12px 16px 24px}
+.drawer .pcard{grid-template-columns:1fr;box-shadow:none;margin:0;border-radius:0}
+.drawer .pcard .pimg{padding:8px}
+.drawer .pcard .pimg img{width:min(100%,260px)}
+.drawer .pbody{padding:6px 4px}
+.xbtn{width:44px;height:44px;border-radius:50%;border:0;background:#eef0f2;font-size:22px;line-height:1}
+@media (min-width:721px){.drawer{top:0;right:0;bottom:0;width:440px;transform:translateX(100%);transition:transform .25s}.drawer.on{transform:none}}
+
+/* ---------- Zoe ---------- */
+.zoe-fab{position:fixed;right:24px;bottom:24px;z-index:60;display:none;align-items:center;gap:10px;min-height:56px;padding:0 24px 0 18px;border-radius:32px;border:0;background:var(--blue);color:#fff;font-weight:700;font-size:17px;box-shadow:0 6px 22px rgba(0,0,0,.28)}
+.zoe-fab:hover{background:var(--blue-d)}
+.zoe-fab.show{display:inline-flex}
+.zoe-fab svg,.zoe-bar svg{flex:none}
+.zoe{position:fixed;z-index:100;right:24px;bottom:24px;width:400px;height:min(660px,calc(100dvh - 48px));background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.35);display:none;flex-direction:column;overflow:hidden}
+.zoe.on{display:flex;animation:zin .22s ease both}
+@keyframes zin{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+.zh{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 18px;background:var(--blue);color:#fff}
+.zav{width:38px;height:38px;border-radius:50%;background:#fff;color:var(--blue);display:grid;place-items:center;flex:none}
+.zh .nm{flex:1;line-height:1.2}
+.zh .nm strong{display:block;font-size:18px}
+.zh .nm small{font-size:13px;opacity:.92}
+.zh .xbtn{background:rgba(255,255,255,.18);color:#fff}
+.zctx{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--blue-soft);font-size:13px;color:var(--ink);border-bottom:1px solid #cfe3f2}
+.zctx img{width:30px;height:30px;object-fit:contain;background:#fff;border-radius:6px;flex:none}
+.zctx span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zmsgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:#fafbfc}
+.msg{display:flex;gap:10px;max-width:92%}
+.msg .zav{width:30px;height:30px}
+.bub{background:#fff;border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:12px 14px;font-size:16px;line-height:1.5}
+.msg.me{align-self:flex-end}
+.msg.me .bub{background:var(--blue);color:#fff;border-color:var(--blue);border-radius:16px 4px 16px 16px}
+.caret{display:inline-block;width:2px;height:1em;background:var(--blue);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.sugg{display:grid;gap:8px;margin:2px 0 0 40px}
+.sugg p{margin:0;font-size:13px;color:var(--muted);font-weight:600}
+.chip{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;padding:10px 16px;border:2px solid var(--blue);border-radius:26px;background:#fff;color:var(--blue-d);font-weight:600;font-size:16px;text-align:left;line-height:1.25}
+.chip:hover,.chip:active{background:var(--blue-soft)}
+.chip:after{content:"›";font-size:22px;line-height:1}
+.fade{animation:in .3s ease both}
+.zdisc{font-size:12px;color:var(--muted);padding:0 16px 8px;background:#fff;margin:0;text-align:center}
+.zin{padding:10px 14px calc(14px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.zin label{display:block;font-size:13px;font-weight:700;margin:0 0 6px 4px}
+.zform{position:relative}
+.zform input{width:100%;height:54px;border:2px solid var(--field);border-radius:28px;padding:0 64px 0 20px;font:inherit;font-size:16px;color:var(--ink);background:#fff}
+.zform input::placeholder{color:#4b5563;opacity:1}
+.zform input:focus{outline:3px solid #1a73e8;outline-offset:1px;border-color:#1a73e8}
+.zform button{position:absolute;right:5px;top:5px;width:44px;height:44px;border-radius:50%;border:0;background:var(--blue);color:#fff;display:grid;place-items:center}
+.zform button:hover{background:var(--blue-d)}
+.proto-note{font-size:12px;color:var(--muted);text-align:center;margin:6px 0 0}
+
+/* toast + proto menu */
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;z-index:120;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100vw - 32px);font-size:15px}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.pm{position:fixed;left:16px;top:60px;z-index:130;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.3);padding:8px;display:none;min-width:240px}
+.pm.on{display:block}
+.pm button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;min-height:44px;border-radius:8px}
+.pm button:hover{background:var(--blue-soft)}
+.pm h4{margin:6px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+
+/* ---------- mobile ---------- */
+@media (max-width:720px){
+  .nav{display:none}
+  .site-in{height:56px;padding:0 12px;gap:8px}
+  .logo{flex:1;font-size:26px}
+  #app{padding:0 16px}
+  .grid,.grid.n2,.grid.n3{grid-template-columns:1fr;gap:10px;margin-top:16px}
+  .opt{flex-direction:row;align-items:center;text-align:left;min-height:84px}
+  .opt img{width:84px;height:84px;flex:none}
+  .opt .t{padding:10px 14px;font-size:17px}
+  .opt[aria-checked=true]:after{top:50%;right:14px;transform:translateY(-50%)}
+  .optwrap .info{top:50%;left:auto;right:56px;transform:translateY(-50%)}
+  .optwrap .tip{top:auto;bottom:calc(100% + 6px);left:8px;right:8px}
+  .q h1{margin-top:18px;font-size:24px}
+  .qactions{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:18px 0 calc(12px + env(safe-area-inset-bottom));margin:8px 0 0}
+  .qactions .btn{width:100%}
+  .stepper .lbl{font-size:12px}
+  .stepper .dev{display:none}
+
+  /* sticky bar goes to the thumb zone */
+  .bar{position:fixed;top:auto;bottom:0;left:0;right:0;margin:0;border-bottom:0;border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.12);padding-bottom:env(safe-area-inset-bottom)}
+  .bar-in{padding:10px 12px;gap:10px}
+  .bar-info{display:none}
+  .bar-price{flex:1;font-size:20px;line-height:1.15}
+  .bar-price small{display:block}
+  .chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+  .chips .achip,.chips .l{flex:none;white-space:nowrap}
+  .bar-act .view{display:none}
+  .zoe-bar{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:2px solid var(--blue);background:#fff;color:var(--blue);flex:none}
+  .bar-act .btn{min-height:52px;padding:0 20px}
+  .result-pad{padding-bottom:calc(var(--bar-h) + 24px + env(safe-area-inset-bottom))}
+  .pcard{grid-template-columns:1fr;margin-top:12px}
+  .pcard .pimg{padding:14px 14px 0}
+  .pcard .pimg img{width:min(100%,260px)}
+  .pbody{padding:6px 18px 20px}
+  .pbody h2{font-size:22px}
+  .pact .btn{flex:1}
+  .upsell{flex-wrap:wrap;gap:12px;padding:16px}
+  .upsell .grow{flex:1 1 calc(100% - 80px)}
+  .upsell .btn{width:100%}
+  .canvas,.setgrid{display:none}
+  .devbtns{display:block}
+  .ccard{flex-basis:78vw}
+  .arrow{display:none}
+  .rhead{padding-top:16px}
+  .zoe-fab{display:none!important}
+  .zoe{inset:0;width:100%;height:100dvh;border-radius:0;right:0;bottom:0}
+  .drawer{left:0;right:0;bottom:0;max-height:90dvh;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .25s}
+  .drawer.on{transform:none}
+  .toast{bottom:calc(var(--bar-h) + 24px)}
+  .pm{top:56px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#app">Skip to configurator</a>
+<div class="promo">Neighbours and Search Party for Dogs. Starting in October, you can connect with neighbours and help to reunite lost dogs with their families.
+  <button class="proto-link" id="pmBtn" aria-expanded="false">Prototype menu ▾</button></div>
+<div class="pm" id="pm" role="menu" aria-label="Prototype shortcuts">
+  <h4>Questions</h4>
+  <button data-go="start">Start from the beginning</button>
+  <h4>Result screens</h4>
+  <button data-go="doorbell">Result: doorbell (hardwired)</button>
+  <button data-go="doorbell-bat">Result: doorbell (battery, no alternatives)</button>
+  <button data-go="camera">Result: camera (outdoor)</button>
+  <button data-go="bundle">Result: doorbell + camera</button>
+  <button data-go="alarm">Result: alarm system</button>
+  <h4>Zoe</h4>
+  <button data-go="zoe">Result: bundle + Zoe open</button>
+</div>
+<header class="site"><div class="site-in">
+  <a class="logo" href="#" aria-label="Ring home">ring</a>
+  <nav class="nav" aria-label="Main"><a href="#">Products ⌄</a><a href="#">Protect Plans ⌄</a><a href="#">Neighbours ⌄</a><a href="#">Business</a><a href="#">Help ⌄</a><a class="offers" href="#">Offers</a></nav>
+  <button class="cart" id="cart" aria-label="Basket, 0 items"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.76L20 8H6.3"/><circle cx="9.5" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg><b hidden>0</b></button>
+</div></header>
+
+<main id="app" tabindex="-1"></main>
+
+<footer class="site"><div><span>Company</span><span>Support</span><span>Contact us</span><span>© Ring — UX prototype, sample data</span></div></footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle"><div class="dh"><strong id="dTitle">Product</strong><button class="xbtn" id="dClose" aria-label="Close">×</button></div><div class="db" id="dBody"></div></aside>
+
+<button class="zoe-fab" id="zoeFab" aria-haspopup="dialog">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9zM5 15l.7 2 2 .7-2 .7L5 20.5l-.7-2.1-2-.7 2-.7z"/></svg>
+  <span id="zoeFabTxt">Ask Zoe</span></button>
+
+<section class="zoe" id="zoe" role="dialog" aria-label="Zoe, Ring shopping assistant">
+  <div class="zh">
+    <div class="zav"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg></div>
+    <div class="nm"><strong>Zoe</strong><small>Ring shopping assistant</small></div>
+    <button class="xbtn" id="zClose" aria-label="Close Zoe">×</button>
+  </div>
+  <div class="zctx" id="zctx"></div>
+  <div class="zmsgs" id="zmsgs" aria-live="off"></div>
+  <p class="zdisc">AI-generated, general product information only. Please don’t share personal data.</p>
+  <div class="zin">
+    <label for="zq">Ask your own question</label>
+    <form class="zform" id="zform" autocomplete="off">
+      <input id="zq" type="text" enterkeyhint="send" placeholder="Type a question, e.g. battery life">
+      <button type="submit" aria-label="Send question"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <p class="proto-note">Prototype: Zoe’s live answers are not connected.</p>
+  </div>
+</section>
+<div class="sr" role="status" id="sr"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =====================================================================
+   DATA  (names / prices / attributes taken from the live en-uk configurator,
+   Nov 2026; product photos only where a local file existed, else nearest sibling)
+   ===================================================================== */
+const A = n => 'assets/' + n;
+const HOUSE_CANVAS = 'https://orca-assets.zoovu.com/zoovu/4b021b33-a509-4a4d-92f4-a218c1578d69';
+const gbp = n => '£' + n.toFixed(2);
+
+const PROD = {
+  db_bat4k:   {type:'doorbell', name:'Battery Video Doorbell 4K Pro', price:219.99, power:'battery', install:'Easy installation', feats:['Two-way talk','Live view','Removable battery pack'], img:'p-doorbell-phantom.jpg'},
+  db_2kplus:  {type:'doorbell', name:'Wired Video Doorbell 2K Plus', price:159.99, power:'wired', install:'Professional installation', feats:['3D Motion Detection'], img:'p-doorbell-wired.png'},
+  db_poe:     {type:'doorbell', name:'Wired Video Doorbell Pro (newest gen) with Power-over-Ethernet Adaptor', price:219.99, power:'wired', install:'Professional installation', feats:['3D Motion Detection'], img:'p-doorbell-poe.jpg'},
+  db_4kpro:   {type:'doorbell', name:'Wired Video Doorbell 4K Pro', price:219.99, power:'wired', install:'Professional installation', feats:['3D Motion Detection','4K video'], img:'p-doorbell-starlit.jpg'},
+  db_4kplug:  {type:'doorbell', name:'Wired Video Doorbell 4K Pro with Plug-In Adaptor', price:219.99, power:'plug-in or wired', install:'Professional installation', feats:['3D Motion Detection','4K video'], img:'p-doorbell-plugin.png'},
+  db_elite:   {type:'doorbell', name:'Wired Video Doorbell 4K Elite', price:449.99, power:'wired', install:'Professional installation', feats:['3D Motion Detection','4K video'], img:'p-doorbell-poe.jpg'},
+  db_2kplug:  {type:'doorbell', name:'Wired Video Doorbell 2K with Plug-In Adapter', price:69.99, was:80.98, power:'plug-in', install:'Easy installation', feats:['Two-way talk','Live view'], img:'p-doorbell-plugin.png'},
+
+  cam_in1:    {type:'camera', name:'Indoor Cam (1st Gen)', price:39.99, power:'plug-in', install:'Easy installation', feats:['HD video'], img:'p-alarm-cam.png', place:'Indoor'},
+  cam_outbat: {type:'camera', name:'Outdoor Camera 2K Battery', price:99.99, power:'battery', install:'Easy installation', feats:['2K video','Removable battery pack'], img:'p-spotlight.png', place:'Outdoor'},
+  cam_outplus:{type:'camera', name:'Outdoor Camera Plus – Battery', price:89.99, power:'battery', install:'Easy installation', feats:['Battery powered'], img:'p-spotlight.png', place:'Outdoor'},
+  cam_spotw:  {type:'camera', name:'Spotlight Camera 4K Pro Wired', price:219.99, power:'wired', install:'Professional installation', feats:['3D Motion Detection','Spotlights'], img:'p-spotlight.png', place:'Outdoor'},
+  cam_flood:  {type:'camera', name:'Floodlight Cam Wired Plus', price:159.99, power:'wired', install:'Professional installation', feats:['Floodlights','Motion notifications'], img:'p-floodlight.png', place:'Outdoor'},
+  cam_spotp:  {type:'camera', name:'Spotlight Camera 4K Pro Plug-In', price:219.99, power:'plug-in', install:'Easy or professional installation', feats:['3D Motion Detection','Spotlights'], img:'p-spotlight.png', place:'Outdoor'},
+  cam_stick:  {type:'camera', name:'Stick Up Cam Plug-In (outdoor)', price:79.99, power:'plug-in', install:'Easy installation', feats:['Two-way talk','Live view'], img:'p-spotlight.png', place:'Outdoor'},
+
+  al_s:   {type:'alarm', name:'Alarm Pack', price:239.99, was:269.97, power:'mains + backup battery', install:'Easy installation', feats:['Keypad and base station','Contact and motion sensors'], img:'p-alarm-pack.png'},
+  al_c:   {type:'alarm', name:'Alarm + Indoor Camera Plus Pack', price:239.99, was:319.96, power:'mains + backup battery', install:'Easy installation', feats:['Includes indoor camera'], img:'p-alarm-cam.png'},
+  al_c2:  {type:'alarm', name:'Alarm + Indoor Camera 2nd Gen Pack', price:259.99, was:309.96, power:'mains + backup battery', install:'Easy installation', feats:['Includes indoor camera'], img:'p-alarm-cam.png'},
+  al_cs:  {type:'alarm', name:'Alarm + Indoor Camera Plus Pack (with siren)', price:289.99, was:389.95, power:'mains + backup battery', install:'Easy installation', feats:['Includes indoor camera','Includes siren'], img:'p-alarm-siren.png'},
+  al_ss:  {type:'alarm', name:'Alarm Pack (with siren)', price:289.99, was:339.96, power:'mains + backup battery', install:'Easy installation', feats:['Includes siren'], img:'p-alarm-siren.png'},
+};
+
+const FEAT = {
+  talk:{label:'Live View and Two-Way Talk', img:'f-talk.jpg', tip:'See what’s happening in real time and speak to whoever is there.'},
+  pack:{label:'Removable battery pack',    img:'f-battery.jpg', tip:'Swap in a charged battery without taking the device down.'},
+  head:{label:'Head-to-Toe View',          img:'f-head.jpg', tip:'A taller view so you see visitors and parcels on the doorstep.'},
+  d3:  {label:'3D Motion Detection',       img:'f-3d.jpg', tip:'Tracks how far away movement is, for more precise motion alerts.'},
+  k4:  {label:'4K Video',                  img:'f-4k.png', tip:'Sharper detail and more room to zoom in.'},
+  k2:  {label:'2K Video',                  img:'f-4k.png', tip:'A clear, detailed picture.'},
+};
+const POWER = [
+  {id:'battery', label:'Wireless / battery', img:'power-battery.jpg'},
+  {id:'wired',   label:'Hardwired',          img:'power-wired.jpg'},
+  {id:'plugin',  label:'Plug-in',            img:'power-plugin.jpg'},
+];
+const YN = [{id:'yes',label:'Yes',img:'yes.jpg'},{id:'no',label:'No',img:'no.jpg'}];
+const featOpts = ids => ids.map(id => ({id, label:FEAT[id].label, img:FEAT[id].img, tip:FEAT[id].tip}));
+
+/* =====================================================================
+   FLOW GRAPH
+   Removed vs. live: "What is your main concern?" (doorbell, camera, bundle) – it never changed results.
+   Features step is skipped automatically when it has no options (was a dead-end screen).
+   Stages are fixed (Home → Setup → Results) so the stepper never changes its total.
+   ===================================================================== */
+const N = {
+  home:{stage:1, title:'What kind of home do you live in?', label:'Home',
+    opts:()=>[{id:'house',label:'House',img:'house.jpg'},{id:'apartment',label:'Apartment',img:'apartment.jpg'}], next:()=>'looking'},
+  looking:{stage:1, title:'What are you looking for?', label:'Looking for',
+    opts:()=>[{id:'doorbell',label:'Video Doorbell',img:'looking-doorbell.jpg'},{id:'camera',label:'Security Camera',img:'looking-camera.jpg'},
+              {id:'bundle',label:'Video Doorbell and Security Camera',img:'looking-bundle.jpg'},{id:'alarm',label:'Alarm System',img:'looking-alarm.jpg'}],
+    next:s=>({doorbell:'db_power',camera:'cam_place',bundle:'db_power',alarm:'al_bed'})[s.looking]},
+
+  db_power:{stage:2, device:'Doorbell', title:'How would you like to power your doorbell?', label:'Doorbell power', opts:()=>POWER, next:()=>'db_feat'},
+  db_feat:{stage:2, device:'Doorbell', multi:true, title:'Which doorbell features are important to you?', sub:'Pick any that matter, or skip.', label:'Doorbell features',
+    opts:s=>featOpts({battery:['talk','pack','head'],wired:['d3','head','k4'],plugin:['talk','d3','head','k4']}[s.db_power]||[]),
+    skip:s=>!N.db_feat.opts(s).length, next:s=>s.flow==='bundle'?'cam_place':'results'},
+
+  cam_place:{stage:2, device:'Camera', title:'Which part of your home would you like to cover with your camera?', label:'Camera location',
+    opts:()=>[{id:'indoors',label:'Indoors',img:'indoors.jpg'},{id:'outdoors',label:'Outdoors',img:'outdoors.jpg'}], next:s=>s.cam_place==='indoors'?'cam_feat':'cam_power'},
+  cam_power:{stage:2, device:'Camera', title:'How would you like to power your camera?', label:'Camera power', opts:()=>POWER,
+    next:s=>({battery:'cam_feat',wired:'cam_area',plugin:'cam_lights'})[s.cam_power]},
+  cam_area:{stage:2, device:'Camera', title:'What area would you like to cover with your camera?', label:'Area',
+    opts:()=>[{id:'garden',label:'Garden or driveway',img:'outdoors.jpg'},{id:'path',label:'Path, patio or garage',img:'outdoors.jpg'}], next:()=>'cam_feat'},
+  cam_lights:{stage:2, device:'Camera', title:'Do you need lights?', label:'Lights', opts:()=>YN, next:()=>'cam_feat'},
+  cam_feat:{stage:2, device:'Camera', multi:true, title:'Which camera features are important to you?', sub:'Pick any that matter, or skip.', label:'Camera features',
+    opts:s=>featOpts(
+      s.cam_place==='indoors' ? [] :
+      s.cam_power==='battery' ? ['pack','k2'] :
+      s.cam_power==='wired'   ? (s.cam_area==='path' ? ['d3'] : []) :
+      s.cam_power==='plugin'  ? (s.cam_lights==='yes' ? ['d3'] : ['talk','k2']) : []),
+    skip:s=>!N.cam_feat.opts(s).length, next:()=>'results'},
+
+  al_bed:{stage:2, device:'Alarm', title:'How many bedrooms do you want to cover?', label:'Bedrooms',
+    opts:()=>[{id:'1',label:'1',img:'bed-1.jpg'},{id:'2',label:'2',img:'bed-2.jpg'},{id:'3',label:'3',img:'bed-3.jpg'},{id:'3p',label:'3+',img:'bed-3plus.jpg'}], next:()=>'al_cam'},
+  al_cam:{stage:2, device:'Alarm', title:'Do you need a camera?', label:'Camera', opts:()=>YN, next:()=>'al_siren'},
+  al_siren:{stage:2, device:'Alarm', title:'Do you need a siren?', label:'Siren', opts:()=>YN, next:()=>'results'},
+};
+const STAGES = ['Your home','Your setup','Your results'];
+
+function nextOf(id, s){
+  let n = N[id].next(s);
+  while(n!=='results' && N[n].skip && N[n].skip(s)) n = N[n].next(s);
+  return n;
+}
+/* longest remaining path (in questions, incl. node `id`) – used so the bar only ever moves forward */
+function maxRem(id, s){
+  if(id==='results') return 0;
+  const nd = N[id];
+  if(nd.multi){ const s2={...s,[id]:[]}; return 1+maxRem(nextOf(id,s2),s2); }
+  let best=0;
+  for(const o of nd.opts(s)){ const s2={...s,[id]:o.id}; if(id==='looking') s2.flow=o.id==='bundle'?'bundle':'single'; best=Math.max(best,maxRem(nextOf(id,s2),s2)); }
+  return 1+best;
+}
+
+/* =====================================================================
+   RESULT LOGIC (sample mapping from the live walk-through)
+   ===================================================================== */
+const SIZE = {'1':'S','2':'M','3':'L','3p':'XL'};
+function pickDoorbell(p){
+  return ({battery:['db_bat4k',[]], wired:['db_2kplus',['db_poe','db_4kpro','db_4kplug','db_elite']], plugin:['db_2kplug',['db_4kplug']]})[p];
+}
+function pickCamera(s){
+  if(s.cam_place==='indoors') return ['cam_in1',[]];
+  if(s.cam_power==='battery') return ['cam_outbat',['cam_outplus']];
+  if(s.cam_power==='wired')   return s.cam_area==='path' ? ['cam_spotw',[]] : ['cam_spotw',['cam_flood']];
+  return s.cam_lights==='yes' ? ['cam_spotp',[]] : ['cam_stick',[]];
+}
+function mkItem(slot, key, alts){ return {slot, main:key, alts:[...alts]}; }
+function computeItems(s){
+  if(s.looking==='alarm'){
+    const k = s.al_cam==='yes' ? (s.al_siren==='yes'?'al_cs':'al_c') : (s.al_siren==='yes'?'al_ss':'al_s');
+    return [mkItem('alarm',k,['al_s','al_c','al_c2','al_cs','al_ss'].filter(x=>x!==k))];
+  }
+  const db=()=>{ const [m,a]=pickDoorbell(s.db_power); return mkItem('doorbell',m,a); };
+  const cam=()=>{ const [m,a]=pickCamera(s); return mkItem('camera',m,a); };
+  let list;
+  if(s.extra) list=[s.keepItems[0], s.extra==='camera'?cam():db()];
+  else if(s.looking==='doorbell') list=[db()];
+  else if(s.looking==='camera') list=[cam()];
+  else list=[db(),cam()];
+  return list.sort((x,y)=>(x.slot==='doorbell'?0:1)-(y.slot==='doorbell'?0:1));
+}
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let S, hist, cur, view, items, cartCount=0, zoeSig='', streamTimer=null;
+function fresh(){ S={}; hist=[]; cur='home'; view='q'; items=null; }
+function rebuild(){ hist=[]; let id='home'; while(id!=='results'){ hist.push(id); id=nextOf(id,S); } cur=null; view='result'; items=computeItems(S); }
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const app = $('#app');
+const isMobile = ()=>matchMedia('(max-width:720px)').matches;
+
+function labelFor(nodeId){
+  const v=S[nodeId]; if(v===undefined) return null;
+  const nd=N[nodeId]; const opts=nd.opts(S);
+  if(Array.isArray(v)){ if(!v.length) return null; return v.map(x=>(opts.find(o=>o.id===x)||{}).label).filter(Boolean).join(', '); }
+  const o=opts.find(o=>o.id===v); return o?o.label:null;
+}
+
+/* ---------- answering / navigation ---------- */
+function answer(id, val){
+  const keep=new Set([...hist,'extra','flow','keepItems','snapshot']);
+  for(const k of Object.keys(S)) if(!keep.has(k)) delete S[k];
+  S[id]=val;
+  if(id==='looking') S.flow = val==='bundle'?'bundle':'single';
+  hist.push(id);
+  const n=nextOf(id,S);
+  if(n==='results'){ view='result'; items=computeItems(S); cur=null; }
+  else cur=n;
+  render(true);
+}
+function back(){
+  if(view==='result'){ view='q'; cur=hist.pop(); items=null; }
+  else if(S.extra && hist.length<=2){ restoreAfterExtra(); return; }
+  else if(hist.length){ cur=hist.pop(); }
+  render(true);
+}
+function restart(){ fresh(); closeZoe(); zoeSig=''; render(true); }
+function editAt(id){ const i=hist.indexOf(id); if(i<0) return; hist=hist.slice(0,i); cur=id; view='q'; items=null; render(true); }
+
+/* "Add a camera / add a doorbell" upsell – re-uses the normal question screens, keeps the first product */
+function startExtra(kind){
+  const snapshot={items:JSON.parse(JSON.stringify(items)), S:JSON.parse(JSON.stringify(S)), hist:[...hist]};
+  S={home:S.home, flow:'single', looking:kind, extra:kind, keepItems:snapshot.items, snapshot};
+  hist=['home','looking']; view='q'; items=null; closeZoe(); zoeSig='';
+  cur = kind==='camera' ? 'cam_place' : 'db_power';
+  render(true);
+}
+function restoreAfterExtra(){
+  const sn=S.snapshot; S=sn.S; hist=sn.hist; items=sn.items; view='result'; cur=null; render(true);
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+function render(focus){
+  document.body.classList.toggle('on-result', view==='result');
+  if(view==='q') renderQ(); else renderResult();
+  $('#zoeFab').classList.toggle('show', view==='result' && !isMobile());
+  if(view!=='result') closeZoe();
+  if(focus){ window.scrollTo(0,0); const h=$('h1',app); if(h){h.tabIndex=-1;h.focus({preventScroll:true});} }
+}
+
+/* ---------- stepper ---------- */
+function stepperHTML(){
+  const nd = N[cur];
+  const answered1 = hist.filter(h=>N[h].stage===1).length;
+  const answered2 = hist.filter(h=>N[h].stage===2).length;
+  const inAdd = !!S.extra;
+  let f1 = inAdd ? 1 : (nd.stage===1 ? answered1/2 : 1);
+  let f2 = nd.stage===2 ? answered2/(answered2+maxRem(cur,S)) : 0;
+  const stageNow = nd.stage;
+  const sub = nd.stage===2 && nd.device ? nd.device : '';
+  const lbl = i=>STAGES[i]+(i===1 && sub ? `<span class="dev"> · ${sub.toLowerCase()}</span>` : '');
+  const fr=[f1,f2,0];
+  return `<nav class="stepper" aria-label="Progress"><ol>${STAGES.map((_,i)=>{
+    const st = i+1<stageNow?'done':i+1===stageNow?'cur':'';
+    return `<li class="${st}"${st==='cur'?' aria-current="step"':''}><span class="seg"><i style="width:${Math.round(fr[i]*100)}%"></i></span><span class="lbl">${lbl(i)}</span></li>`;
+  }).join('')}</ol><span class="sr">Stage ${stageNow} of 3: ${STAGES[stageNow-1]}</span></nav>`;
+}
+
+/* ---------- question screen ---------- */
+function renderQ(){
+  const nd=N[cur]; const opts=nd.opts(S);
+  const sel=S[cur];
+  const canBack = hist.length>0 || !!S.extra;
+  const group = nd.multi?'group':'radiogroup';
+  let html=`<div class="top"><button class="tbtn" id="bBack" ${canBack?'':'disabled'}><span aria-hidden="true">‹</span> Back</button><button class="tbtn" id="bRestart">Restart</button></div>${stepperHTML()}`;
+  html+=`<section class="q"><h1 id="qh">${nd.title}</h1>${nd.sub?`<p class="sub">${nd.sub}</p>`:''}`;
+  const cols = opts.length===2?'n2':opts.length===3?'n3':'';
+  html+=`<div class="grid ${cols}" role="${group}" aria-labelledby="qh">`;
+  html+=opts.map(o=>{
+    const on = nd.multi ? (sel||[]).includes(o.id) : sel===o.id;
+    const btn=`<button type="button" class="opt" role="${nd.multi?'checkbox':'radio'}" aria-checked="${on}" data-id="${o.id}">${o.img?`<img src="${A(o.img)}" alt="" loading="lazy">`:''}<span class="t">${o.label}</span></button>`;
+    return o.tip ? `<div class="optwrap">${btn}<button type="button" class="info" aria-label="About ${o.label}" aria-expanded="false" data-tip="${o.id}">i</button><div class="tip" id="tip-${o.id}" role="note">${o.tip}</div></div>` : btn;
+  }).join('');
+  html+=`</div>`;
+  if(nd.multi){
+    const lastQ = nextOf(cur,{...S,[cur]:sel||[]})==='results';
+    html+=`<div class="qactions"><button class="btn" id="bGo">${(sel&&sel.length)?(lastQ?'See my results':'Continue'):(lastQ?'Skip and see results':'Skip')}</button></div>`;
+  }
+  html+=`</section>`;
+  app.innerHTML=html;
+  $('#bBack').onclick=back; $('#bRestart').onclick=restart;
+  $$('.opt',app).forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id;
+    if(nd.multi){
+      const arr=new Set(S[cur]||[]); arr.has(id)?arr.delete(id):arr.add(id); S[cur]=[...arr];
+      const on=arr.has(id); b.setAttribute('aria-checked',on);
+      const lastQ = nextOf(cur,{...S})==='results';
+      $('#bGo').textContent=S[cur].length?(lastQ?'See my results':'Continue'):(lastQ?'Skip and see results':'Skip');
+    } else {
+      $$('.opt',app).forEach(x=>x.setAttribute('aria-checked',x===b));
+      setTimeout(()=>answer(cur,id),260);   // brief confirmation, then auto-advance
+    }
+  });
+  $$('.info',app).forEach(b=>b.onclick=e=>{ e.stopPropagation(); const t=$('#tip-'+b.dataset.tip); const on=!t.classList.contains('on'); $$('.tip',app).forEach(x=>x.classList.remove('on')); t.classList.toggle('on',on); b.setAttribute('aria-expanded',on); });
+  if(nd.multi) $('#bGo').onclick=()=>answer(cur,S[cur]||[]);
+}
+
+/* ---------- result screen ---------- */
+function pw(p){ return ({battery:'Battery',wired:'Wired','plug-in':'Plug-in','plug-in or wired':'Plug-in or wired'})[p]||p[0].toUpperCase()+p.slice(1); }
+function priceHTML(p){ return `<div class="price">${gbp(p.price)}${p.was&&p.was>p.price?`<s aria-label="was ${gbp(p.was)}">${gbp(p.was)}</s><em>Save ${gbp(p.was-p.price)}</em>`:''}</div>`; }
+function whyList(p){ const l=[`${pw(p.power)} powered`, p.install, ...p.feats]; return l.slice(0,4); }
+function productName(key,item){
+  const p=PROD[key]; if(p.type!=='alarm') return p.name;
+  const size=SIZE[S.al_bed]||'M'; return p.name+' – '+size;
+}
+function specsHTML(p){
+  return `<details class="specs"><summary>All specs</summary><dl><dt>Power</dt><dd>${pw(p.power)}</dd><dt>Installation</dt><dd>${p.install}</dd>${p.place?`<dt>Location</dt><dd>${p.place}</dd>`:''}<dt>Features</dt><dd>${p.feats.join(', ')}</dd></dl></details>`;
+}
+function cardHTML(it,idx,opt={}){
+  const p=PROD[it.main]; const nm=productName(it.main,it);
+  const badge = opt.badge || 'Our recommendation';
+  return `<article class="pcard" data-slot="${idx}"><div class="pimg"><img src="${A(p.img)}" alt="${nm}"></div><div class="pbody">
+    <span class="badge">${badge}</span><h2>${nm}</h2>${priceHTML(p)}
+    <ul class="why" aria-label="Why it fits">${whyList(p).map(x=>`<li>${x}</li>`).join('')}</ul>${specsHTML(p)}
+    <div class="pact"><button class="btn ghost" data-view="${idx}">View product</button><button class="btn" data-add="${idx}">Add to cart</button></div></div></article>`;
+}
+function carouselHTML(it,idx,title,hint){
+  if(!it.alts.length) return '';
+  const cards=it.alts.map(k=>{const p=PROD[k];return `<article class="ccard"><img src="${A(p.img)}" alt="" loading="lazy"><h3>${productName(k,it)}</h3>${priceHTML(p)}<ul>${whyList(p).slice(0,3).map(x=>`<li>${x}</li>`).join('')}</ul><div class="row"><button class="btn ghost sm" data-view-alt="${k}">View</button><button class="btn sm" data-swap="${idx}|${k}">Choose this</button></div></article>`}).join('');
+  return `<section class="sec" aria-labelledby="car${idx}"><h2 id="car${idx}">${title}</h2><p class="hint">${hint}</p><div class="car-wrap"><button class="arrow l" data-car="-1" aria-label="Previous options">‹</button><div class="car" tabindex="0" role="region" aria-label="${title}">${cards}</div><button class="arrow r" data-car="1" aria-label="Next options">›</button></div></section>`;
+}
+function answersChips(){
+  const skip = S.extra ? ['home','looking'] : [];
+  const ids=hist.filter(h=>!skip.includes(h) && labelFor(h));
+  const txt=id=>{ const l=labelFor(id); return (S.flow==='bundle'||S.extra) && N[id].device ? N[id].device+': '+l : l; };
+  return `<div class="chips"><span class="l">Based on:</span>${ids.map(id=>`<button class="achip" data-edit="${id}" aria-label="Change ${N[id].label}: ${labelFor(id)}">${txt(id)}</button>`).join('')}</div>`;
+}
+const total = ()=>items.reduce((a,it)=>a+PROD[it.main].price,0);
+const isSet = ()=>items.length>1;
+
+function renderResult(){
+  const set=isSet(); const first=items[0];
+  const kind=first.slot;
+  const headline = set ? 'Your perfect set' : (kind==='alarm'?'Your best-fit alarm system':'Your best match');
+  let h=`<div class="top"><button class="tbtn" id="bBack"><span aria-hidden="true">‹</span> Change answers</button><button class="tbtn" id="bRestart">Restart</button></div>`;
+  h+=`<div class="result-pad">`;
+  /* sticky CTA bar: top on desktop, bottom (thumb zone) on mobile */
+  const barTitle = set ? `Your set · ${items.length} products` : productName(first.main,first);
+  const barPrice = gbp(set?total():PROD[first.main].price);
+  const stickyBar=`<div class="bar" id="bar"><div class="bar-in"><div class="bar-info"><small>${set?'Total':'Recommended'}</small><strong>${barTitle}</strong></div><div class="bar-price"><small>${set?`Total · ${items.length} products`:'Price'}</small>${barPrice}</div><div class="bar-act">
+      <button class="zoe-bar" id="zoeBar" aria-label="Ask Zoe about ${set?'this set':'this product'}"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9zM5 15l.7 2 2 .7-2 .7L5 20.5l-.7-2.1-2-.7 2-.7z"/></svg></button>
+      ${set?'':`<button class="btn ghost sm view" data-view="0">View product</button>`}
+      <button class="btn" id="barAdd">${set?'Add all to cart':'Add to cart'}</button></div></div></div>`;
+  h+=stickyBar;
+  h+=`<div class="rhead"><h1 id="qh">${headline}</h1>${answersChips()}</div>`;
+
+  if(set){
+    h+=`<div class="canvas" aria-label="Your home with the recommended devices"><img src="${HOUSE_CANVAS}" alt="" onerror="this.remove()">
+      ${items.map((it,i)=>{const pos=it.slot==='doorbell'?[44,77]:[73,69];return `<button class="hot" style="left:${pos[0]}%;top:${pos[1]}%" data-open="${i}" aria-label="${it.slot==='doorbell'?'Doorbell':'Camera'}: ${productName(it.main,it)}"><img src="${A(PROD[it.main].img)}" alt=""><span>${it.slot==='doorbell'?'Doorbell':'Camera'}</span></button>`}).join('')}</div>`;
+    h+=`<div class="setgrid">${items.map((it,i)=>cardHTML(it,i,{badge:it.slot==='doorbell'?'Your doorbell':'Your camera'})).join('')}</div>`;
+    h+=`<div class="devbtns"><p class="hint" style="margin:14px 0 0;color:var(--muted)">Tap a product for details or to change it</p>${items.map((it,i)=>{const p=PROD[it.main];return `<button class="devbtn" data-open="${i}"><img src="${A(p.img)}" alt=""><span class="n"><small>${it.slot==='doorbell'?'Doorbell':'Camera'}</small><strong>${productName(it.main,it)}</strong></span><span class="p">${gbp(p.price)}</span><span class="go" aria-hidden="true">›</span></button>`}).join('')}</div>`;
+    items.forEach((it,i)=>{ h+=carouselHTML(it,i,`Other ${it.slot==='doorbell'?'doorbells':'cameras'} to consider`,'Swipe to compare – choosing one swaps it into your set.'); });
+  } else {
+    h+=cardHTML(first,0);
+    if(kind==='doorbell'||kind==='camera'){
+      const other = kind==='doorbell'?'camera':'doorbell';
+      h+=`<section class="upsell" aria-label="Add a ${other}"><img src="${A(other==='camera'?'looking-camera.jpg':'looking-doorbell.jpg')}" alt=""><div class="grow"><h3>Do you also need a ${other}?</h3><p>${other==='camera'?'Cover the garden, driveway or inside your home. A few quick questions, and your doorbell stays in your set.':'See who’s at the door. A few quick questions, and your camera stays in your set.'}</p></div><button class="btn blue" id="bUp">Add a ${other}</button></section>`;
+    }
+    h+=carouselHTML(first,0,'Other options to consider','Swipe to compare – choosing one swaps it in as your recommendation.');
+  }
+  h+=`<p class="disc">All information provided by the tool is generated by artificial intelligence and is intended solely for general product information. Please refrain from sharing personal data.</p></div>`;
+  app.innerHTML=h;
+  bindResult();
+  $('#zoeFabTxt').textContent = set?'Ask about this set':'Ask about this product';
+}
+
+function bindResult(){
+  $('#bBack').onclick=back;
+  $('#bRestart').onclick=restart;
+  $$('[data-edit]',app).forEach(b=>b.onclick=()=>editAt(b.dataset.edit));
+  $$('[data-add]',app).forEach(b=>b.onclick=()=>addToCart(b,[items[+b.dataset.add]]));
+  $('#barAdd').onclick=e=>addToCart(e.currentTarget,items);
+  $$('[data-view]',app).forEach(b=>b.onclick=()=>toast('Opens the product page on ring.com'));
+  $$('[data-view-alt]',app).forEach(b=>b.onclick=()=>toast('Opens the product page on ring.com'));
+  $$('[data-swap]',app).forEach(b=>b.onclick=()=>{ const [i,k]=b.dataset.swap.split('|'); const it=items[+i]; it.alts=[it.main,...it.alts.filter(x=>x!==k)]; it.main=k; renderResult(); window.scrollTo({top:0,behavior:'smooth'}); toast('Swapped to '+PROD[k].name); zoeSig=''; });
+  $$('[data-open]',app).forEach(b=>b.onclick=()=>openDrawer(+b.dataset.open));
+  $$('[data-car]',app).forEach(b=>b.onclick=()=>{ const c=b.parentElement.querySelector('.car'); c.scrollBy({left:+b.dataset.car*300,behavior:'smooth'}); });
+  const up=$('#bUp'); if(up) up.onclick=()=>startExtra(items[0].slot==='doorbell'?'camera':'doorbell');
+  $('#zoeBar').onclick=openZoe;
+}
+
+/* ---------- cart ---------- */
+function addToCart(btn,list){
+  cartCount+=list.length;
+  const c=$('#cart b'); c.hidden=false; c.textContent=cartCount; $('#cart').setAttribute('aria-label',`Basket, ${cartCount} item${cartCount>1?'s':''}`);
+  const old=btn.textContent; btn.classList.add('done'); btn.textContent='Added ✓';
+  setTimeout(()=>{btn.classList.remove('done'); btn.textContent=old;},1800);
+  toast(list.length>1?`${list.length} products added to your basket`:`${PROD[list[0].main].name} added to your basket`);
+}
+let tt; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2600); }
+
+/* ---------- drawer ---------- */
+function openDrawer(i){
+  const it=items[i];
+  $('#dTitle').textContent = it.slot==='doorbell'?'Your doorbell':'Your camera';
+  $('#dBody').innerHTML = cardHTML(it,i,{badge:'Selected'}) + carouselHTML(it,i,'Other options','Choose one to swap it in.');
+  $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); document.body.style.overflow='hidden';
+  const d=$('#dBody');
+  $$('[data-add]',d).forEach(b=>b.onclick=()=>addToCart(b,[items[+b.dataset.add]]));
+  $$('[data-view],[data-view-alt]',d).forEach(b=>b.onclick=()=>toast('Opens the product page on ring.com'));
+  $$('[data-swap]',d).forEach(b=>b.onclick=()=>{ const [ix,k]=b.dataset.swap.split('|'); const x=items[+ix]; x.alts=[x.main,...x.alts.filter(y=>y!==k)]; x.main=k; closeDrawer(); renderResult(); zoeSig=''; toast('Swapped to '+PROD[k].name); });
+  $$('[data-car]',d).forEach(b=>b.onclick=()=>{ b.parentElement.querySelector('.car').scrollBy({left:+b.dataset.car*300,behavior:'smooth'}); });
+  $('#dClose').focus();
+}
+function closeDrawer(){ $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); if(!$('#zoe').classList.contains('on')) document.body.style.overflow=''; }
+$('#dClose').onclick=closeDrawer; $('#scrim').onclick=closeDrawer;
+
+/* =====================================================================
+   ZOE  – widget (desktop: bot window · mobile: full screen). Not interactive beyond UI.
+   ===================================================================== */
+function powerPhrase(p){ return ({battery:'battery-powered, so there’s no wiring to do','wired':'hardwired, so there’s no battery to charge','plug-in':'powered from a plug-in adaptor','plug-in or wired':'powered by plug-in adaptor or hardwired'})[p]||p; }
+function zoeSegments(){
+  const ps=items.map(it=>PROD[it.main]);
+  const seg=[]; const B=t=>seg.push({t,b:true}); const T=t=>seg.push({t});
+  const PW={battery:'battery-powered','wired':'hardwired','plug-in':'plug-in powered','plug-in or wired':'plug-in or hardwired','mains + backup battery':'mains-powered with a backup battery'};
+  T('Hi, I’m Zoe. ');
+  if(ps.length===1){
+    const p=ps[0];
+    B(productName(items[0].main,items[0]));
+    T(p.type==='alarm' ? ' is the best fit for your home, and it’s '+p.install.toLowerCase()+'. '
+                       : ' is your best match: it’s '+PW[p.power]+', with '+p.install.toLowerCase()+'. ');
+  } else {
+    T('This pair covers your front door and '+(S.cam_place==='indoors'?'the inside':'the outside')+' of your home. ');
+    T(ps[0].power===ps[1].power ? 'Both are '+PW[ps[0].power]+'. ' : 'The doorbell is '+PW[ps[0].power]+' and the camera is '+PW[ps[1].power]+'. ');
+  }
+  T('Live view is free; saving and reviewing video needs a Ring Protect plan.');
+  return seg;
+}
+function zoeChips(){
+  const hasBat = items.some(it=>PROD[it.main].power==='battery');
+  return [hasBat?'How long does the battery last?':'Does it need a battery?','Do I need a subscription?','How do I install it?'];
+}
+function zoeContext(){
+  $('#zctx').innerHTML = items.map(it=>`<img src="${A(PROD[it.main].img)}" alt="">`).join('')+`<span>Asking about: ${items.map(it=>productName(it.main,it)).join(' + ')}</span>`;
+}
+function openZoe(){
+  if(!items) return;
+  closeDrawer();
+  const z=$('#zoe'); z.classList.add('on'); $('#zoeFab').classList.remove('show');
+  if(isMobile()) document.body.style.overflow='hidden';
+  zoeContext();
+  const sig=items.map(i=>i.main).join('|');
+  if(sig!==zoeSig){ zoeSig=sig; startStream(); }
+  setTimeout(()=>{ if(!isMobile()) $('#zq').focus({preventScroll:true}); else $('#zClose').focus(); },60);
+}
+function closeZoe(){
+  $('#zoe').classList.remove('on');
+  if(!$('#drawer').classList.contains('on')) document.body.style.overflow='';
+  if(view==='result' && !isMobile()) $('#zoeFab').classList.add('show');
+}
+function startStream(){
+  clearTimeout(streamTimer);
+  const box=$('#zmsgs'); box.innerHTML='';
+  const m=document.createElement('div'); m.className='msg';
+  m.innerHTML='<div class="zav"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/></svg></div><div class="bub"><span class="out"></span><span class="caret" aria-hidden="true"></span></div>';
+  box.appendChild(m);
+  const out=$('.out',m), caret=$('.caret',m);
+  const segs=zoeSegments();
+  const full=segs.map(s=>s.t).join('');
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const pieces=[]; segs.forEach((s,si)=>s.t.split(/(\s+)/).filter(Boolean).forEach(w=>pieces.push({w,b:s.b})));
+  const done=()=>{ caret.remove(); $('#sr').textContent='Zoe: '+full; showChips(box); };
+  if(reduce){ out.innerHTML=segs.map(s=>s.b?`<strong>${s.t}</strong>`:s.t).join(''); done(); return; }
+  let i=0, curEl=null, curB=null;
+  const tick=()=>{
+    if(i>=pieces.length){ done(); return; }
+    const p=pieces[i++];
+    if(curB!==!!p.b || !curEl){ curB=!!p.b; curEl=document.createElement(p.b?'strong':'span'); out.appendChild(curEl); }
+    curEl.textContent+=p.w;
+    box.scrollTop=box.scrollHeight;
+    streamTimer=setTimeout(tick, /\s/.test(p.w)?0:45);
+  };
+  streamTimer=setTimeout(tick,350);
+}
+function showChips(box){
+  const w=document.createElement('div'); w.className='sugg fade';
+  w.innerHTML='<p>Most asked questions</p>'+zoeChips().map(q=>`<button type="button" class="chip">${q}</button>`).join('');
+  box.appendChild(w); box.scrollTop=box.scrollHeight;
+  $$('.chip',w).forEach(b=>b.onclick=()=>ask(b.textContent));
+}
+function ask(q){
+  const box=$('#zmsgs');
+  $$('.sugg',box).forEach(x=>x.remove());
+  const u=document.createElement('div'); u.className='msg me fade'; u.innerHTML='<div class="bub"></div>'; $('.bub',u).textContent=q; box.appendChild(u);
+  const r=document.createElement('div'); r.className='msg fade';
+  r.innerHTML='<div class="zav"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/></svg></div><div class="bub">Prototype placeholder – in the live version Zoe answers this here.</div>';
+  setTimeout(()=>{ box.appendChild(r); box.scrollTop=box.scrollHeight; },450);
+  box.scrollTop=box.scrollHeight;
+}
+$('#zform').onsubmit=e=>{ e.preventDefault(); const v=$('#zq').value.trim(); if(!v) return; $('#zq').value=''; ask(v); };
+$('#zoeFab').onclick=openZoe; $('#zClose').onclick=closeZoe;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('#zoe').classList.contains('on')) closeZoe(); else if($('#drawer').classList.contains('on')) closeDrawer(); $('#pm').classList.remove('on'); } });
+matchMedia('(max-width:720px)').addEventListener('change',()=>{ if(view==='result'){ renderResult(); } closeZoe(); });
+
+/* ---------- prototype menu ---------- */
+$('#pmBtn').onclick=()=>{ const on=$('#pm').classList.toggle('on'); $('#pmBtn').setAttribute('aria-expanded',on); };
+const PRESETS={
+  doorbell:{home:'house',looking:'doorbell',flow:'single',db_power:'wired',db_feat:['d3']},
+  'doorbell-bat':{home:'house',looking:'doorbell',flow:'single',db_power:'battery',db_feat:['talk']},
+  camera:{home:'house',looking:'camera',flow:'single',cam_place:'outdoors',cam_power:'wired',cam_area:'garden',cam_feat:[]},
+  bundle:{home:'house',looking:'bundle',flow:'bundle',db_power:'wired',db_feat:['d3'],cam_place:'outdoors',cam_power:'wired',cam_area:'path',cam_feat:['d3']},
+  alarm:{home:'house',looking:'alarm',flow:'single',al_bed:'2',al_cam:'no',al_siren:'no'},
+};
+$$('#pm [data-go]').forEach(b=>b.onclick=()=>{
+  const g=b.dataset.go; $('#pm').classList.remove('on'); $('#pmBtn').setAttribute('aria-expanded',false); closeZoe(); closeDrawer();
+  if(g==='start'){ restart(); return; }
+  S=JSON.parse(JSON.stringify(PRESETS[g==='zoe'?'bundle':g])); zoeSig=''; rebuild(); render(true);
+  if(g==='zoe') setTimeout(openZoe,150);
+});
+document.addEventListener('click',e=>{ if(!e.target.closest('#pm,#pmBtn')) $('#pm').classList.remove('on'); });
+$('#cart').onclick=()=>toast(cartCount?`${cartCount} item${cartCount>1?'s':''} in your basket`:'Your basket is empty');
+
+fresh(); render(false);
+</script>
+</body>
+</html>
