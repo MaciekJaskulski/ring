@@ -115,9 +115,14 @@ footer.site div{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:1
 .price{font-size:26px;font-weight:800;margin:8px 0 14px;color:var(--ink)}
 .price s{font-size:16px;color:var(--muted);font-weight:400;margin-left:8px}
 .price em{font-style:normal;font-size:13px;color:var(--ok);font-weight:700;margin-left:8px}
-.why{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:7px}
-.why li{padding-left:28px;position:relative}
-.why li:before{content:"✓";position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:#e3f3ea;color:var(--ok);font-size:13px;font-weight:700;display:grid;place-items:center;top:2px}
+.why{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.why-hint{margin:0 0 8px;font-size:14px;color:var(--muted)}
+.attr{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 16px 6px 10px;border:1.5px solid #9fc4e0;border-radius:24px;background:linear-gradient(180deg,#fff,var(--blue-soft));color:var(--ink);font:inherit;font-size:15px;font-weight:600;line-height:1.25;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
+.attr .spk{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none}
+.attr:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(0,0,0,.14)}
+.attr:active{transform:scale(.97)}
+.attr:focus-visible{outline:3px solid #1a73e8;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.why li:nth-child(odd) .attr .spk{animation:twinkle 3.2s ease-in-out 1s 2}@keyframes twinkle{0%,100%{transform:scale(1)}40%{transform:scale(1.22) rotate(18deg)}}}
 details.specs{margin:0 0 18px;font-size:15px}
 details.specs summary{cursor:pointer;color:var(--blue);font-weight:600;min-height:32px}
 details.specs dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:8px 0 0}
@@ -142,6 +147,13 @@ details.specs dt{color:var(--muted)} details.specs dd{margin:0}
 .ccard ul{margin:0 0 12px;padding-left:18px;font-size:14px;color:var(--muted);flex:1}
 .ccard .row{display:flex;gap:8px}
 .ccard .row .btn{flex:1;padding:0 10px}
+.altfull{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;background:#fff;border-radius:16px;box-shadow:0 1px 8px rgba(0,0,0,.12);padding:20px}
+.altfull img{flex:0 0 220px;width:220px;max-width:100%;aspect-ratio:4/3;object-fit:contain;margin:0 auto}
+.altfull .ab{flex:1 1 280px;min-width:0}
+.altfull h3{font-size:20px;margin:0 0 4px;line-height:1.3;font-weight:700}
+.altfull .price{font-size:22px;margin:2px 0 10px}
+.altfull ul{margin:0 0 14px;padding-left:18px;color:var(--muted);font-size:15px}
+.altfull .row{display:flex;gap:10px;flex-wrap:wrap}
 .arrow{position:absolute;top:38%;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--field);background:#fff;font-size:20px;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .arrow.l{left:-18px}.arrow.r{right:-18px}
 .disc{font-size:13px;color:var(--muted);margin:26px 0 0;text-align:center}
@@ -261,8 +273,13 @@ details.specs dt{color:var(--muted)} details.specs dd{margin:0}
   .chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
   .chips .achip,.chips .l{flex:none;white-space:nowrap}
   .bar-act .view{display:none}
-  .zoe-bar{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:2px solid var(--blue);background:#fff;color:var(--blue);flex:none}
-  .bar-act .btn{min-height:52px;padding:0 20px}
+  .bar-act{gap:8px}
+  .zoe-bar{display:inline-flex;align-items:center;gap:6px;height:48px;padding:0 14px 0 10px;border-radius:24px;border:2px solid var(--blue);background:var(--blue-soft);color:var(--blue-d);font:inherit;font-size:15px;font-weight:700;white-space:nowrap;flex:none}
+  .zoe-bar svg{width:20px;height:20px}
+  .bar-act .btn{min-height:48px;padding:0 16px;font-size:15px;white-space:nowrap}
+  .bar-price{font-size:18px}
+  .altfull{padding:16px}
+  .altfull img{flex-basis:100%;width:min(100%,240px)}
   .result-pad{padding-bottom:calc(var(--bar-h) + 24px + env(safe-area-inset-bottom))}
   .pcard{grid-template-columns:1fr;margin-top:12px}
   .pcard .pimg{padding:14px 14px 0}
@@ -598,7 +615,37 @@ function renderQ(){
 /* ---------- result screen ---------- */
 function pw(p){ return ({battery:'Battery',wired:'Wired','plug-in':'Plug-in','plug-in or wired':'Plug-in or wired'})[p]||p[0].toUpperCase()+p.slice(1); }
 function priceHTML(p){ return `<div class="price">${gbp(p.price)}${p.was&&p.was>p.price?`<s aria-label="was ${gbp(p.was)}">${gbp(p.was)}</s><em>Save ${gbp(p.was-p.price)}</em>`:''}</div>`; }
-function whyList(p){ const l=[`${pw(p.power)} powered`, p.install, ...p.feats]; return l.slice(0,4); }
+function whyList(p){ return [{k:'power:'+p.power,t:`${pw(p.power)} powered`},{k:'inst:'+p.install,t:p.install},...p.feats.map(f=>({k:'feat:'+f,t:f}))].slice(0,5); }
+const SPK='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg>';
+/* Zoe's explanations for the tappable attributes (q = what the shopper "asks", a = Zoe's answer) */
+const ATTR = {
+  'power:battery':{q:'What does battery powered mean?',a:()=>'Battery powered means no wiring at all. It runs on a rechargeable battery, so you can put it where it’s most useful and top it up with the included USB cable every few months, depending on how busy the spot is.'},
+  'power:wired':{q:'What does wired mean?',a:p=>p.type==='doorbell'?'Wired means it connects to your existing doorbell wiring, so it’s always powered and you never have to charge it. If your home already has a wired doorbell, you’re set.':'Wired means it’s hardwired to your home’s power supply, so it’s always on and never needs charging. It’s the set-and-forget choice for a spot you want covered 24/7.'},
+  'power:plug-in':{q:'What does plug-in mean?',a:()=>'Plug-in means it’s powered through an adaptor you plug into a standard socket. No battery to charge and no hardwiring, so it’s a good fit when you have a socket nearby.'},
+  'power:plug-in or wired':{q:'What does plug-in or wired mean?',a:()=>'You can run it either way: plug it into a socket with the adaptor, or connect it to existing doorbell wiring. Either way it’s always powered, with no battery to charge.'},
+  'power:mains + backup battery':{q:'How is the alarm powered?',a:()=>'The base station plugs into the mains, and a backup battery keeps the alarm running if the power goes out. The sensors have their own batteries.'},
+  'inst:Easy installation':{q:'How easy is the installation?',a:()=>'You can set it up yourself in a few minutes. The app guides you step by step, and the mounting kit is included in the box.'},
+  'inst:Professional installation':{q:'Why professional installation?',a:()=>'This model connects to your home’s wiring, so we recommend a qualified electrician fits it unless you’re confident with that kind of work. Once it’s mounted, the app walks you through the setup.'},
+  'inst:Easy or professional installation':{q:'How is it installed?',a:()=>'You can set it up yourself using the app, or have a professional fit it if you’d rather not do the wiring. Both work.'},
+  'feat:Two-way talk':{q:'What is Two-Way Talk?',a:()=>'Two-Way Talk lets you speak to whoever is there, and hear them, through your phone. You can greet a visitor, tell a courier where to leave a parcel, or say hello when you’re not home.'},
+  'feat:Live view':{q:'What is Live View?',a:()=>'Live View lets you check in whenever you like. Open the Ring app and see what the camera sees right now, in real time. It’s free, no plan needed.'},
+  'feat:Removable battery pack':{q:'Why a removable battery pack?',a:()=>'You can swap in a charged pack in seconds instead of taking the whole device down to charge it. Keep a spare and it never has to be offline.'},
+  'feat:3D Motion Detection':{q:'What is 3D Motion Detection?',a:()=>'3D Motion Detection measures how far away movement is, not just that it happened. You can focus alerts on your doorstep or driveway and ignore the pavement, so you get fewer pointless notifications.'},
+  'feat:4K video':{q:'What does 4K video give me?',a:()=>'4K is the sharpest picture Ring offers. You can zoom into a recording and still make out details, like a parcel label or a face at the door.'},
+  'feat:2K video':{q:'What does 2K video give me?',a:()=>'2K is a clear, detailed picture, a step up from standard HD, so faces and numbers stay easy to read.'},
+  'feat:HD video':{q:'What does HD video give me?',a:()=>'HD gives you a clear, everyday-quality picture of the room, which is plenty for keeping an eye on things indoors.'},
+  'feat:Spotlights':{q:'What are the spotlights for?',a:()=>'Built-in spotlights switch on when motion is detected. They light up the scene for a clearer night-time picture and make anyone lingering think twice.'},
+  'feat:Floodlights':{q:'What do the floodlights do?',a:()=>'Bright floodlights cover a wide area when motion is detected, which lights up a garden or driveway and puts off unwanted visitors.'},
+  'feat:Motion notifications':{q:'How do motion notifications work?',a:()=>'When the camera detects movement, it sends an alert to your phone straight away, so you know something’s happening even when you’re out.'},
+  'feat:Battery powered':{q:'What does battery powered mean?',a:()=>'It runs on a rechargeable battery, so there’s no wiring. You can put it where it’s most useful and recharge it every few months.'},
+  'feat:Keypad and base station':{q:'What are the keypad and base station?',a:()=>'The base station is the hub that connects all your sensors and sounds the alarm. The keypad is how you arm and disarm the system with a code as you come and go.'},
+  'feat:Contact and motion sensors':{q:'What do the sensors do?',a:()=>'Contact sensors go on doors and windows and notice when they open. Motion sensors watch a room for movement. Together they tell the base station when something’s not right.'},
+  'feat:Includes indoor camera':{q:'What does the included camera do?',a:()=>'The pack includes an indoor camera, so you can see what’s happening at home from the Ring app, and check in on things when the alarm goes off.'},
+  'feat:Includes siren':{q:'What does the siren do?',a:()=>'The extra siren adds a loud alarm that sounds when the system is triggered. It deters intruders and lets you hear the alert from further away in your home.'},
+};
+function attrHTML(p,idx){
+  return `<p class="why-hint">Tap a feature to find out what it means</p><ul class="why" aria-label="Why it fits">${whyList(p).map(x=>`<li><button type="button" class="attr" data-attr="${idx}|${x.k}" data-label="${x.t}"><span class="spk">${SPK}</span>${x.t}</button></li>`).join('')}</ul>`;
+}
 function productName(key,item){
   const p=PROD[key]; if(p.type!=='alarm') return p.name;
   const size=SIZE[S.al_bed]||'M'; return p.name+' – '+size;
@@ -611,12 +658,16 @@ function cardHTML(it,idx,opt={}){
   const badge = opt.badge || 'Our recommendation';
   return `<article class="pcard" data-slot="${idx}"><div class="pimg"><img src="${A(p.img)}" alt="${nm}"></div><div class="pbody">
     <span class="badge">${badge}</span><h2>${nm}</h2>${priceHTML(p)}
-    <ul class="why" aria-label="Why it fits">${whyList(p).map(x=>`<li>${x}</li>`).join('')}</ul>${specsHTML(p)}
+    ${attrHTML(p,idx)}${specsHTML(p)}
     <div class="pact"><button class="btn ghost" data-view="${idx}">View product</button><button class="btn" data-add="${idx}">Add to cart</button></div></div></article>`;
 }
 function carouselHTML(it,idx,title,hint){
   if(!it.alts.length) return '';
-  const cards=it.alts.map(k=>{const p=PROD[k];return `<article class="ccard"><img src="${A(p.img)}" alt="" loading="lazy"><h3>${productName(k,it)}</h3>${priceHTML(p)}<ul>${whyList(p).slice(0,3).map(x=>`<li>${x}</li>`).join('')}</ul><div class="row"><button class="btn ghost sm" data-view-alt="${k}">View</button><button class="btn sm" data-swap="${idx}|${k}">Choose this</button></div></article>`}).join('');
+  if(it.alts.length===1){
+    const k=it.alts[0], p=PROD[k];
+    return `<section class="sec" aria-labelledby="car${idx}"><h2 id="car${idx}">${title.replace(/^Other options/,'Another option').replace(/^Other (doorbells|cameras)/,(m,w)=>'Another '+w.slice(0,-1))}</h2><p class="hint">Choosing it swaps it in as your recommendation.</p><article class="altfull"><img src="${A(p.img)}" alt="" loading="lazy"><div class="ab"><h3>${productName(k,it)}</h3>${priceHTML(p)}<ul>${whyList(p).map(x=>`<li>${x.t}</li>`).join('')}</ul><div class="row"><button class="btn ghost" data-view-alt="${k}">View product</button><button class="btn" data-swap="${idx}|${k}">Choose this</button></div></div></article></section>`;
+  }
+  const cards=it.alts.map(k=>{const p=PROD[k];return `<article class="ccard"><img src="${A(p.img)}" alt="" loading="lazy"><h3>${productName(k,it)}</h3>${priceHTML(p)}<ul>${whyList(p).slice(0,3).map(x=>`<li>${x.t}</li>`).join('')}</ul><div class="row"><button class="btn ghost sm" data-view-alt="${k}">View</button><button class="btn sm" data-swap="${idx}|${k}">Choose this</button></div></article>`}).join('');
   return `<section class="sec" aria-labelledby="car${idx}"><h2 id="car${idx}">${title}</h2><p class="hint">${hint}</p><div class="car-wrap"><button class="arrow l" data-car="-1" aria-label="Previous options">‹</button><div class="car" tabindex="0" role="region" aria-label="${title}">${cards}</div><button class="arrow r" data-car="1" aria-label="Next options">›</button></div></section>`;
 }
 function answersChips(){
@@ -638,9 +689,9 @@ function renderResult(){
   const barTitle = set ? `Your set · ${items.length} products` : productName(first.main,first);
   const barPrice = gbp(set?total():PROD[first.main].price);
   const stickyBar=`<div class="bar" id="bar"><div class="bar-in"><div class="bar-info"><small>${set?'Total':'Recommended'}</small><strong>${barTitle}</strong></div><div class="bar-price"><small>${set?`Total · ${items.length} products`:'Price'}</small>${barPrice}</div><div class="bar-act">
-      <button class="zoe-bar" id="zoeBar" aria-label="Ask Zoe about ${set?'this set':'this product'}"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9zM5 15l.7 2 2 .7-2 .7L5 20.5l-.7-2.1-2-.7 2-.7z"/></svg></button>
+      <button class="zoe-bar" id="zoeBar" aria-label="Ask Zoe about ${set?'this set':'this product'}"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9zM5 15l.7 2 2 .7-2 .7L5 20.5l-.7-2.1-2-.7 2-.7z"/></svg>Ask Zoe</button>
       ${set?'':`<button class="btn ghost sm view" data-view="0">View product</button>`}
-      <button class="btn" id="barAdd">${set?'Add all to cart':'Add to cart'}</button></div></div></div>`;
+      <button class="btn" id="barAdd">${set?(isMobile()?'Add all':'Add all to cart'):'Add to cart'}</button></div></div></div>`;
   h+=stickyBar;
   h+=`<div class="rhead"><h1 id="qh">${headline}</h1>${answersChips()}</div>`;
 
@@ -675,6 +726,7 @@ function bindResult(){
   $$('[data-swap]',app).forEach(b=>b.onclick=()=>{ const [i,k]=b.dataset.swap.split('|'); const it=items[+i]; it.alts=[it.main,...it.alts.filter(x=>x!==k)]; it.main=k; renderResult(); window.scrollTo({top:0,behavior:'smooth'}); toast('Swapped to '+PROD[k].name); zoeSig=''; });
   $$('[data-open]',app).forEach(b=>b.onclick=()=>openDrawer(+b.dataset.open));
   $$('[data-car]',app).forEach(b=>b.onclick=()=>{ const c=b.parentElement.querySelector('.car'); c.scrollBy({left:+b.dataset.car*300,behavior:'smooth'}); });
+  $$('[data-attr]',app).forEach(b=>b.onclick=()=>askAttr(b));
   const up=$('#bUp'); if(up) up.onclick=()=>startExtra(items[0].slot==='doorbell'?'camera':'doorbell');
   $('#zoeBar').onclick=openZoe;
 }
@@ -699,6 +751,7 @@ function openDrawer(i){
   $$('[data-add]',d).forEach(b=>b.onclick=()=>addToCart(b,[items[+b.dataset.add]]));
   $$('[data-view],[data-view-alt]',d).forEach(b=>b.onclick=()=>toast('Opens the product page on ring.com'));
   $$('[data-swap]',d).forEach(b=>b.onclick=()=>{ const [ix,k]=b.dataset.swap.split('|'); const x=items[+ix]; x.alts=[x.main,...x.alts.filter(y=>y!==k)]; x.main=k; closeDrawer(); renderResult(); zoeSig=''; toast('Swapped to '+PROD[k].name); });
+  $$('[data-attr]',d).forEach(b=>b.onclick=()=>askAttr(b));
   $$('[data-car]',d).forEach(b=>b.onclick=()=>{ b.parentElement.querySelector('.car').scrollBy({left:+b.dataset.car*300,behavior:'smooth'}); });
   $('#dClose').focus();
 }
@@ -733,14 +786,14 @@ function zoeChips(){
 function zoeContext(){
   $('#zctx').innerHTML = items.map(it=>`<img src="${A(PROD[it.main].img)}" alt="">`).join('')+`<span>Asking about: ${items.map(it=>productName(it.main,it)).join(' + ')}</span>`;
 }
-function openZoe(){
+function openZoe(skipIntro){
   if(!items) return;
   closeDrawer();
   const z=$('#zoe'); z.classList.add('on'); $('#zoeFab').classList.remove('show');
   if(isMobile()) document.body.style.overflow='hidden';
   zoeContext();
   const sig=items.map(i=>i.main).join('|');
-  if(sig!==zoeSig){ zoeSig=sig; startStream(); }
+  if(sig!==zoeSig){ zoeSig=sig; if(skipIntro===true){ clearTimeout(streamTimer); streamFlush=null; $('#zmsgs').innerHTML=''; } else startStream(); }
   setTimeout(()=>{ if(!isMobile()) $('#zq').focus({preventScroll:true}); else $('#zClose').focus(); },60);
 }
 function closeZoe(){
@@ -748,19 +801,23 @@ function closeZoe(){
   if(!$('#drawer').classList.contains('on')) document.body.style.overflow='';
   if(view==='result' && !isMobile()) $('#zoeFab').classList.add('show');
 }
-function startStream(){
-  clearTimeout(streamTimer);
-  const box=$('#zmsgs'); box.innerHTML='';
+const ZAV='<div class="zav"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/></svg></div>';
+let streamFlush=null;
+/* streams one Zoe message word by word into the chat, then calls after(box) */
+function streamMsg(segs,after){
+  if(streamFlush) streamFlush();
+  const box=$('#zmsgs');
   const m=document.createElement('div'); m.className='msg';
-  m.innerHTML='<div class="zav"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/></svg></div><div class="bub"><span class="out"></span><span class="caret" aria-hidden="true"></span></div>';
+  m.innerHTML=ZAV+'<div class="bub"><span class="out"></span><span class="caret" aria-hidden="true"></span></div>';
   box.appendChild(m);
   const out=$('.out',m), caret=$('.caret',m);
-  const segs=zoeSegments();
   const full=segs.map(s=>s.t).join('');
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  const pieces=[]; segs.forEach((s,si)=>s.t.split(/(\s+)/).filter(Boolean).forEach(w=>pieces.push({w,b:s.b})));
-  const done=()=>{ caret.remove(); $('#sr').textContent='Zoe: '+full; showChips(box); };
-  if(reduce){ out.innerHTML=segs.map(s=>s.b?`<strong>${s.t}</strong>`:s.t).join(''); done(); return; }
+  const pieces=[]; segs.forEach(s=>s.t.split(/(\s+)/).filter(Boolean).forEach(w=>pieces.push({w,b:s.b})));
+  const done=()=>{ streamFlush=null; caret.remove(); $('#sr').textContent='Zoe: '+full; if(after) after(box); box.scrollTop=box.scrollHeight; };
+  const flush=()=>{ clearTimeout(streamTimer); out.innerHTML=segs.map(s=>s.b?`<strong>${s.t}</strong>`:s.t).join(''); done(); };
+  if(reduce){ flush(); return; }
+  streamFlush=flush;
   let i=0, curEl=null, curB=null;
   const tick=()=>{
     if(i>=pieces.length){ done(); return; }
@@ -771,6 +828,27 @@ function startStream(){
     streamTimer=setTimeout(tick, /\s/.test(p.w)?0:45);
   };
   streamTimer=setTimeout(tick,350);
+}
+function startStream(){
+  clearTimeout(streamTimer); streamFlush=null;
+  $('#zmsgs').innerHTML='';
+  streamMsg(zoeSegments(),showChips);
+}
+/* tapping an attribute on the result page: Zoe opens and explains it */
+function askAttr(btn){
+  const [idx,key]=btn.dataset.attr.split('|');
+  const it=items[+idx], p=PROD[it.main], e=ATTR[key];
+  const q=e?e.q:'What does “'+btn.dataset.label+'” mean?';
+  const segs=[]; if(items.length>1) segs.push({t:productName(it.main,it),b:true},{t:': '});
+  segs.push({t:e?e.a(p):'That’s one of the reasons it fits your answers.'});
+  if(streamFlush) streamFlush();
+  clearTimeout(streamTimer);
+  openZoe(true);
+  const box=$('#zmsgs');
+  $$('.sugg',box).forEach(x=>x.remove());
+  const u=document.createElement('div'); u.className='msg me fade'; u.innerHTML='<div class="bub"></div>'; $('.bub',u).textContent=q; box.appendChild(u);
+  box.scrollTop=box.scrollHeight;
+  streamTimer=setTimeout(()=>streamMsg(segs,showChips),450);
 }
 function showChips(box){
   const w=document.createElement('div'); w.className='sugg fade';
