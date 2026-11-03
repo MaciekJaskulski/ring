@@ -261,9 +261,11 @@ details.specs dt{color:var(--muted)} details.specs dd{margin:0}
   .opt img{width:84px;height:84px;flex:none}
   .opt .t{padding:10px 14px;font-size:17px}
   .opt[aria-checked=true]:after{top:50%;right:14px;transform:translateY(-50%)}
-  .optwrap .info{top:50%;left:auto;right:56px;transform:translateY(-50%);width:40px;height:40px;padding:0}
+  .optwrap .info{top:50%;left:auto;right:52px;transform:translateY(-50%);width:26px;min-width:26px;height:26px;padding:0;border:0;background:none}
+  .optwrap .info:before{content:"";position:absolute;inset:-9px}
   .optwrap .info span{display:none}
-  .optwrap .info i{width:30px;height:30px}
+  .optwrap .info i{width:26px;height:26px;font-size:15px}
+  .optwrap .opt .t{padding-right:88px}
   .optwrap .tip{top:calc(100% + 6px);bottom:auto;left:8px;right:8px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
   .q h1{margin-top:18px;font-size:24px}
   .qactions{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:18px 0 calc(12px + env(safe-area-inset-bottom));margin:8px 0 0}
