@@ -76,7 +76,10 @@ footer.site div{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:1
 .opt .info{position:absolute;top:8px;left:8px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--field);background:#fff;font-weight:700;font-size:15px;display:grid;place-items:center;z-index:2}
 .optwrap{position:relative;display:flex}
 .optwrap .opt{flex:1}
-.optwrap .info{position:absolute;top:8px;left:8px;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--field);background:#fff;font-weight:700;font-size:15px;display:grid;place-items:center;z-index:2;padding:0}
+.optwrap .info{position:absolute;top:8px;left:8px;min-width:36px;height:36px;border-radius:18px;border:1.5px solid var(--blue);background:#fff;color:var(--blue-d);font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px;justify-content:center;z-index:2;padding:0 12px 0 4px;cursor:pointer}
+.optwrap .info i{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-style:italic;font-family:Georgia,serif;font-size:16px;display:grid;place-items:center}
+.optwrap .info:hover,.optwrap .info[aria-expanded=true]{background:var(--blue-soft)}
+.optwrap .info:focus-visible{outline:3px solid #1a73e8;outline-offset:2px}
 .optwrap .tip{display:none;position:absolute;left:8px;right:8px;top:48px;background:var(--ink);color:#fff;border-radius:10px;padding:10px 12px;font-size:14px;z-index:3;text-align:left}
 .optwrap .tip.on{display:block}
 .qactions{display:flex;justify-content:center;margin:28px 0 10px}
@@ -115,14 +118,16 @@ footer.site div{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:1
 .price{font-size:26px;font-weight:800;margin:8px 0 14px;color:var(--ink)}
 .price s{font-size:16px;color:var(--muted);font-weight:400;margin-left:8px}
 .price em{font-style:normal;font-size:13px;color:var(--ok);font-weight:700;margin-left:8px}
-.why{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-.why-hint{margin:0 0 8px;font-size:14px;color:var(--muted)}
-.attr{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 16px 6px 10px;border:1.5px solid #9fc4e0;border-radius:24px;background:linear-gradient(180deg,#fff,var(--blue-soft));color:var(--ink);font:inherit;font-size:15px;font-weight:600;line-height:1.25;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
-.attr .spk{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none}
-.attr:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(0,0,0,.14)}
-.attr:active{transform:scale(.97)}
-.attr:focus-visible{outline:3px solid #1a73e8;outline-offset:2px}
-@media (prefers-reduced-motion:no-preference){.why li:nth-child(odd) .attr .spk{animation:twinkle 3.2s ease-in-out 1s 2}@keyframes twinkle{0%,100%{transform:scale(1)}40%{transform:scale(1.22) rotate(18deg)}}}
+.why{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:7px}
+.why li{padding-left:28px;position:relative}
+.why li:before{content:"✓";position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:#e3f3ea;color:var(--ok);font-size:13px;font-weight:700;display:grid;place-items:center;top:2px}
+.attr{position:relative;display:inline;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--blue);text-decoration-thickness:1.5px;text-underline-offset:4px}
+.attr:hover,.attr:focus-visible{color:var(--blue-d);text-decoration-thickness:2.5px}
+.attr:focus-visible{outline:3px solid #1a73e8;outline-offset:3px;border-radius:3px}
+.atip{position:absolute;left:calc(100% + 10px);top:50%;margin-top:-15px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:var(--ink);color:#fff;font-size:13px;font-weight:600;line-height:1.2;white-space:nowrap;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28);opacity:0;visibility:hidden;transform:translateX(-4px);transition:opacity .15s,transform .15s;pointer-events:none;z-index:4}
+.atip svg{flex:none}
+.attr:hover .atip,.attr:focus-visible .atip{opacity:1;visibility:visible;transform:none}
+@media (hover:none){.atip{display:none}.why li{min-height:32px;display:flex;align-items:center}.why li:before{top:50%;margin-top:-9px}}
 details.specs{margin:0 0 18px;font-size:15px}
 details.specs summary{cursor:pointer;color:var(--blue);font-weight:600;min-height:32px}
 details.specs dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:8px 0 0}
@@ -256,8 +261,10 @@ details.specs dt{color:var(--muted)} details.specs dd{margin:0}
   .opt img{width:84px;height:84px;flex:none}
   .opt .t{padding:10px 14px;font-size:17px}
   .opt[aria-checked=true]:after{top:50%;right:14px;transform:translateY(-50%)}
-  .optwrap .info{top:50%;left:auto;right:56px;transform:translateY(-50%)}
-  .optwrap .tip{top:auto;bottom:calc(100% + 6px);left:8px;right:8px}
+  .optwrap .info{top:50%;left:auto;right:56px;transform:translateY(-50%);width:40px;height:40px;padding:0}
+  .optwrap .info span{display:none}
+  .optwrap .info i{width:30px;height:30px}
+  .optwrap .tip{top:calc(100% + 6px);bottom:auto;left:8px;right:8px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
   .q h1{margin-top:18px;font-size:24px}
   .qactions{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:18px 0 calc(12px + env(safe-area-inset-bottom));margin:8px 0 0}
   .qactions .btn{width:100%}
@@ -400,12 +407,20 @@ const FEAT = {
   k4:  {label:'4K Video',                  img:'f-4k.png', tip:'Sharper detail and more room to zoom in.'},
   k2:  {label:'2K Video',                  img:'f-4k.png', tip:'A clear, detailed picture.'},
 };
-const POWER = [
-  {id:'battery', label:'Wireless / battery', img:'power-battery.jpg'},
-  {id:'wired',   label:'Hardwired',          img:'power-wired.jpg'},
-  {id:'plugin',  label:'Plug-in',            img:'power-plugin.jpg'},
+const POWER_TIP = {
+  doorbell:{battery:'Runs on a rechargeable battery, so there’s no wiring. Charge it every few months with the included USB cable.',
+            wired:'Connects to your existing doorbell wiring, so it’s always powered and never needs charging.',
+            plugin:'Powered by an adaptor that plugs into a standard socket. No battery to charge and no hardwiring.'},
+  camera:  {battery:'Runs on a rechargeable battery, so you can put it anywhere. Charge it every few months with the included USB cable.',
+            wired:'Hardwired to your home’s power supply, so it’s always on and never needs charging.',
+            plugin:'Powered by an adaptor that plugs into a standard socket. No battery to charge and no hardwiring.'}
+};
+const powerOpts = dev => [
+  {id:'battery', label:'Wireless / battery', img:'power-battery.jpg', tip:POWER_TIP[dev].battery},
+  {id:'wired',   label:'Hardwired',          img:'power-wired.jpg',   tip:POWER_TIP[dev].wired},
+  {id:'plugin',  label:'Plug-in',            img:'power-plugin.jpg',  tip:POWER_TIP[dev].plugin},
 ];
-const YN = [{id:'yes',label:'Yes',img:'yes.jpg'},{id:'no',label:'No',img:'no.jpg'}];
+const ynOpts = (yes,no) => [{id:'yes',label:'Yes',img:'yes.jpg',tip:yes},{id:'no',label:'No',img:'no.jpg',tip:no}];
 const featOpts = ids => ids.map(id => ({id, label:FEAT[id].label, img:FEAT[id].img, tip:FEAT[id].tip}));
 
 /* =====================================================================
@@ -418,22 +433,22 @@ const N = {
   home:{stage:1, title:'What kind of home do you live in?', label:'Home',
     opts:()=>[{id:'house',label:'House',img:'house.jpg'},{id:'apartment',label:'Apartment',img:'apartment.jpg'}], next:()=>'looking'},
   looking:{stage:1, title:'What are you looking for?', label:'Looking for',
-    opts:()=>[{id:'doorbell',label:'Video Doorbell',img:'looking-doorbell.jpg'},{id:'camera',label:'Security Camera',img:'looking-camera.jpg'},
-              {id:'bundle',label:'Video Doorbell and Security Camera',img:'looking-bundle.jpg'},{id:'alarm',label:'Alarm System',img:'looking-alarm.jpg'}],
+    opts:()=>[{id:'doorbell',label:'Video Doorbell',img:'looking-doorbell.jpg',tip:'Replaces your current doorbell. See and talk to visitors from your phone and get alerts when someone’s at the door.'},{id:'camera',label:'Security Camera',img:'looking-camera.jpg',tip:'Watches a room or an outdoor area and alerts you to motion. Check in with live view whenever you like.'},
+              {id:'bundle',label:'Video Doorbell and Security Camera',img:'looking-bundle.jpg',tip:'Both together: a doorbell for your front door plus a camera for another area.'},{id:'alarm',label:'Alarm System',img:'looking-alarm.jpg',tip:'A base station, keypad and sensors that alert you if a door or window opens or movement is detected.'}],
     next:s=>({doorbell:'db_power',camera:'cam_place',bundle:'db_power',alarm:'al_bed'})[s.looking]},
 
-  db_power:{stage:2, device:'Doorbell', title:'How would you like to power your doorbell?', label:'Doorbell power', opts:()=>POWER, next:()=>'db_feat'},
+  db_power:{stage:2, device:'Doorbell', title:'How would you like to power your doorbell?', label:'Doorbell power', opts:()=>powerOpts('doorbell'), next:()=>'db_feat'},
   db_feat:{stage:2, device:'Doorbell', multi:true, title:'Which doorbell features are important to you?', sub:'Pick any that matter, or skip.', label:'Doorbell features',
     opts:s=>featOpts({battery:['talk','pack','head'],wired:['d3','head','k4'],plugin:['talk','d3','head','k4']}[s.db_power]||[]),
     skip:s=>!N.db_feat.opts(s).length, next:s=>s.flow==='bundle'?'cam_place':'results'},
 
   cam_place:{stage:2, device:'Camera', title:'Which part of your home would you like to cover with your camera?', label:'Camera location',
-    opts:()=>[{id:'indoors',label:'Indoors',img:'indoors.jpg'},{id:'outdoors',label:'Outdoors',img:'outdoors.jpg'}], next:s=>s.cam_place==='indoors'?'cam_feat':'cam_power'},
-  cam_power:{stage:2, device:'Camera', title:'How would you like to power your camera?', label:'Camera power', opts:()=>POWER,
+    opts:()=>[{id:'indoors',label:'Indoors',img:'indoors.jpg',tip:'For rooms inside your home, like a hallway or living room.'},{id:'outdoors',label:'Outdoors',img:'outdoors.jpg',tip:'Weather-resistant cameras for a garden, driveway, patio or garage.'}], next:s=>s.cam_place==='indoors'?'cam_feat':'cam_power'},
+  cam_power:{stage:2, device:'Camera', title:'How would you like to power your camera?', label:'Camera power', opts:()=>powerOpts('camera'),
     next:s=>({battery:'cam_feat',wired:'cam_area',plugin:'cam_lights'})[s.cam_power]},
   cam_area:{stage:2, device:'Camera', title:'What area would you like to cover with your camera?', label:'Area',
-    opts:()=>[{id:'garden',label:'Garden or driveway',img:'outdoors.jpg'},{id:'path',label:'Path, patio or garage',img:'outdoors.jpg'}], next:()=>'cam_feat'},
-  cam_lights:{stage:2, device:'Camera', title:'Do you need lights?', label:'Lights', opts:()=>YN, next:()=>'cam_feat'},
+    opts:()=>[{id:'garden',label:'Garden or driveway',img:'outdoors.jpg',tip:'A wide area, like a lawn or driveway, where a camera with bright lights works well.'},{id:'path',label:'Path, patio or garage',img:'outdoors.jpg',tip:'A smaller, closer area, like a path, patio or garage door.'}], next:()=>'cam_feat'},
+  cam_lights:{stage:2, device:'Camera', title:'Do you need lights?', label:'Lights', opts:()=>ynOpts('Built-in spotlights or floodlights switch on when motion is detected, for a clearer night picture and as a deterrent.','Camera only. It still sees in the dark with night vision.'), next:()=>'cam_feat'},
   cam_feat:{stage:2, device:'Camera', multi:true, title:'Which camera features are important to you?', sub:'Pick any that matter, or skip.', label:'Camera features',
     opts:s=>featOpts(
       s.cam_place==='indoors' ? [] :
@@ -442,10 +457,10 @@ const N = {
       s.cam_power==='plugin'  ? (s.cam_lights==='yes' ? ['d3'] : ['talk','k2']) : []),
     skip:s=>!N.cam_feat.opts(s).length, next:()=>'results'},
 
-  al_bed:{stage:2, device:'Alarm', title:'How many bedrooms do you want to cover?', label:'Bedrooms',
+  al_bed:{stage:2, device:'Alarm', title:'How many bedrooms do you want to cover?', sub:'We use this to size your system.', label:'Bedrooms',
     opts:()=>[{id:'1',label:'1',img:'bed-1.jpg'},{id:'2',label:'2',img:'bed-2.jpg'},{id:'3',label:'3',img:'bed-3.jpg'},{id:'3p',label:'3+',img:'bed-3plus.jpg'}], next:()=>'al_cam'},
-  al_cam:{stage:2, device:'Alarm', title:'Do you need a camera?', label:'Camera', opts:()=>YN, next:()=>'al_siren'},
-  al_siren:{stage:2, device:'Alarm', title:'Do you need a siren?', label:'Siren', opts:()=>YN, next:()=>'results'},
+  al_cam:{stage:2, device:'Alarm', title:'Do you need a camera?', label:'Camera', opts:()=>ynOpts('Adds an indoor camera to your pack, so you can check in on your home from the app.','Alarm only. You can add a camera later.'), next:()=>'al_siren'},
+  al_siren:{stage:2, device:'Alarm', title:'Do you need a siren?', label:'Siren', opts:()=>ynOpts('An extra loud siren sounds when the alarm is triggered, to deter intruders and alert you.','The alarm still alerts your phone. You can add a siren later.'), next:()=>'results'},
 };
 const STAGES = ['Your home','Your setup','Your results'];
 
@@ -586,7 +601,7 @@ function renderQ(){
   html+=opts.map(o=>{
     const on = nd.multi ? (sel||[]).includes(o.id) : sel===o.id;
     const btn=`<button type="button" class="opt" role="${nd.multi?'checkbox':'radio'}" aria-checked="${on}" data-id="${o.id}">${o.img?`<img src="${A(o.img)}" alt="" loading="lazy">`:''}<span class="t">${o.label}</span></button>`;
-    return o.tip ? `<div class="optwrap">${btn}<button type="button" class="info" aria-label="About ${o.label}" aria-expanded="false" data-tip="${o.id}">i</button><div class="tip" id="tip-${o.id}" role="note">${o.tip}</div></div>` : btn;
+    return o.tip ? `<div class="optwrap">${btn}<button type="button" class="info" aria-label="What does ${o.label} mean?" aria-expanded="false" data-tip="${o.id}"><i aria-hidden="true">i</i><span>What’s this?</span></button><div class="tip" id="tip-${o.id}" role="note">${o.tip}</div></div>` : btn;
   }).join('');
   html+=`</div>`;
   if(nd.multi){
@@ -610,6 +625,7 @@ function renderQ(){
   });
   $$('.info',app).forEach(b=>b.onclick=e=>{ e.stopPropagation(); const t=$('#tip-'+b.dataset.tip); const on=!t.classList.contains('on'); $$('.tip',app).forEach(x=>x.classList.remove('on')); t.classList.toggle('on',on); b.setAttribute('aria-expanded',on); });
   if(nd.multi) $('#bGo').onclick=()=>answer(cur,S[cur]||[]);
+  app.onclick=e=>{ if(!e.target.closest('.info,.tip')){ $$('.tip.on',app).forEach(x=>x.classList.remove('on')); $$('.info',app).forEach(x=>x.setAttribute('aria-expanded',false)); } };
 }
 
 /* ---------- result screen ---------- */
@@ -644,7 +660,7 @@ const ATTR = {
   'feat:Includes siren':{q:'What does the siren do?',a:()=>'The extra siren adds a loud alarm that sounds when the system is triggered. It deters intruders and lets you hear the alert from further away in your home.'},
 };
 function attrHTML(p,idx){
-  return `<p class="why-hint">Tap a feature to find out what it means</p><ul class="why" aria-label="Why it fits">${whyList(p).map(x=>`<li><button type="button" class="attr" data-attr="${idx}|${x.k}" data-label="${x.t}"><span class="spk">${SPK}</span>${x.t}</button></li>`).join('')}</ul>`;
+  return `<ul class="why" aria-label="Why it fits">${whyList(p).map(x=>`<li><button type="button" class="attr" data-attr="${idx}|${x.k}" data-label="${x.t}">${x.t}<span class="atip" aria-hidden="true">${SPK}Ask Zoe about it</span></button></li>`).join('')}</ul>`;
 }
 function productName(key,item){
   const p=PROD[key]; if(p.type!=='alarm') return p.name;
